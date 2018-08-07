@@ -51,7 +51,12 @@ static double getElapsedTime(struct timespec* start, struct timespec* end, bool 
 	} else {
 		int total = round(exact_total);
 		int roundTo = 60;
-		return total + roundTo - (total % roundTo);
+		int leftover = total % roundTo;
+		if(leftover > 30) {
+			return total + roundTo - (total % roundTo);
+		} else {
+			return total - leftover;
+		}
 	}
 }
 
