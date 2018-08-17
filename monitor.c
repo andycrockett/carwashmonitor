@@ -364,13 +364,13 @@ int main (void)
 					clock_gettime(CLOCK_MONOTONIC, &bayTimers[i][1]);
 					clock_gettime(CLOCK_MONOTONIC, &bayTimers[i][3]);
 					elapsedTime[i][0] = getElapsedTime(&bayTimers[i][0], &bayTimers[i][1], true);
-					elapsedTime[i][1] = getElapsedTime(&bayTimers[i][2], &bayTimers[i][3], false);
+					elapsedTime[i][1] = getElapsedTime(&bayTimers[i][2], &bayTimers[i][3], false) + pumpSessionElapsedTime[i];
 					printf("BAY %d TIMER ELAPSED: %f seconds\n", (int)i + 1, elapsedTime[i][0]);
 					bayRunning[i][0] = false;
 
 					// record session
 					sprintf(bay_session_timer_time, "%lf", elapsedTime[i][0]);
-					sprintf(bay_session_pump_time, "%lf", pumpSessionElapsedTime[i]);
+					sprintf(bay_session_pump_time, "%lf", elapsedTime[i][1]);
 					const char *insertParamValues[3] = {bay_string, bay_session_timer_time, bay_session_pump_time};
 			        PGresult *res = PQexecPrepared(conn, "BAY_SESSION_INSERT", 3, insertParamValues, NULL, NULL, 0);
 			        if(pg_bad_result(res)) do_exit(conn, res);
@@ -387,10 +387,6 @@ int main (void)
 			        res = PQexecPrepared(conn, "UPDATE_BAY_STATUS_RUNTIME", 3, updateRuntimeParamValues, NULL, NULL, 0);
 			        if(pg_bad_result(res)) do_exit(conn, res);
 			        PQclear(res);
-
-					// clear out pump runtimes
-					pumpSessionElapsedTime[i] = 0;
-					elapsedTime[i][1] = 0;
 				}
 			}
 
