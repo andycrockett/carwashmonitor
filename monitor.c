@@ -265,7 +265,7 @@ int main (void)
 	int bayInsertCounter[4] = {0,0,0,0};
 
 	// how many cycles to wait before confirming a start or stop of relay
-	int threshold = 10;
+	int threshold = 20;
 	// how many cycles to wait before confirming a coin insert
 	int MAINTENANCE_THRESHOLD = 5;
 
