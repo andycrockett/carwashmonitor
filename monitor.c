@@ -367,14 +367,21 @@ int main (void)
 					elapsedTime[i][1] = getElapsedTime(&bayTimers[i][2], &bayTimers[i][3], false) + pumpSessionElapsedTime[i];
 					printf("BAY %d TIMER ELAPSED: %f seconds\n", (int)i + 1, elapsedTime[i][0]);
 					bayRunning[i][0] = false;
+					
+					if(elapsedTime[i][1] < 1) {
+						elapsedTime[i][1] = 0;
+					}
 
 					// record session
-					sprintf(bay_session_timer_time, "%lf", elapsedTime[i][0]);
-					sprintf(bay_session_pump_time, "%lf", elapsedTime[i][1]);
-					const char *insertParamValues[3] = {bay_string, bay_session_timer_time, bay_session_pump_time};
-			        PGresult *res = PQexecPrepared(conn, "BAY_SESSION_INSERT", 3, insertParamValues, NULL, NULL, 0);
-			        if(pg_bad_result(res)) do_exit(conn, res);
-			        PQclear(res);
+					if(elapsedTime[i][0] > 0) {
+
+						sprintf(bay_session_timer_time, "%lf", elapsedTime[i][0]);
+						sprintf(bay_session_pump_time, "%lf", elapsedTime[i][1]);
+						const char *insertParamValues[3] = {bay_string, bay_session_timer_time, bay_session_pump_time};
+				        	PGresult *res = PQexecPrepared(conn, "BAY_SESSION_INSERT", 3, insertParamValues, NULL, NULL, 0);
+					        if(pg_bad_result(res)) do_exit(conn, res);
+			       			 PQclear(res);
+					}
 
 					// update bay status
 					const char *updateParamValues[3] = {bayRunning[i][0] == true ? strue : sfalse, bayRunning[i][1] == true ? strue : sfalse, bay_string};
